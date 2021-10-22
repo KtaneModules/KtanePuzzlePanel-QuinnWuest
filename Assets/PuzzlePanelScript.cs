@@ -72,7 +72,7 @@ public class PuzzlePanelScript : MonoBehaviour
             SquareSels[i].OnInteract += SquarePress(i);
         StageLed.material = StageLedMats[0];
 
-        _stageOneCount = Rnd.Range(3, 6);
+        _stageOneCount = 3;
         for (int i = 0; i < _stageOneCount;)
         {
             int rand = Rnd.Range(0, 16);
@@ -84,7 +84,7 @@ public class PuzzlePanelScript : MonoBehaviour
         ScreenText.text = _stageOneCount.ToString();
         _movesLeft = _stageOneCount;
 
-        _stageTwoCount = Rnd.Range(5, 10);
+        _stageTwoCount = 4;
         for (int i = 0; i < _stageTwoCount;)
         {
             int rand = Rnd.Range(0, 16);
@@ -183,6 +183,7 @@ public class PuzzlePanelScript : MonoBehaviour
             Debug.LogFormat("[Puzzle Panel #{0}] Got to the solution in the required amount of moves.", _moduleId);
             if (_stageNum == 0)
             {
+                Debug.LogFormat("Puzzle Panel #{0}] Moving onto Stage 2.", _moduleId);
                 DoStageTwo();
             }
             else
@@ -195,8 +196,6 @@ public class PuzzlePanelScript : MonoBehaviour
         }
         if (_movesLeft <= 0 && !_correct)
         {
-            Debug.LogFormat("[Puzzle Panel #{0}] Did not get to the solution within the required amount of moves. Strike.", _moduleId);
-            Module.HandleStrike();
             StartCoroutine(FlipToSolution(_stageNum, true));
             _isInputting = false;
         }
@@ -206,7 +205,11 @@ public class PuzzlePanelScript : MonoBehaviour
 
     private void DoStageTwo()
     {
-        Debug.LogFormat("Puzzle Panel #{0}] Moving onto Stage 2.", _moduleId);
+        _movesLeft = 99;
+        for (int i = 0; i < _stageOne.Count; i++)
+        {
+            StartCoroutine(FlipSquare(_stageOne[i], 0f, true));
+        }
         _movesLeft = _stageTwoCount;
         ScreenText.text = _movesLeft.ToString();
         _stageNum++;
@@ -215,7 +218,6 @@ public class PuzzlePanelScript : MonoBehaviour
 
         _possibleMoves = new List<string>();
         _flippedSquares = new List<string>();
-
 
         for (int i = 0; i < _stageTwo.Count; i++)
         {
