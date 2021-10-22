@@ -14,7 +14,13 @@ MonoBehaviour:
   id: PuzzlePanelModule
   title: Puzzle Panel
   author: Quinn Wuest
-  description: Puzzle Panel
+  description: 'So you''re telling me I went through all the trouble to unlock this,
+    only to have to think?
+
+
+    Manual by Dicey
+
+    Developed by Quinn Wuest'
   version: 1.0
   outputFolder: build
-  previewImage: {fileID: 2800000, guid: bd5c1f4881f57d54481b44e4c8a7779a, type: 3}
+  previewImage: {fileID: 2800000, guid: 32de81aecd17c5b42a73590a33a4bf14, type: 3}
