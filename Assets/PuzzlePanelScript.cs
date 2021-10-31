@@ -28,6 +28,7 @@ public class PuzzlePanelScript : MonoBehaviour
     private bool[] _isFlippedUp = new bool[16];
     private bool[] _isFirstSolFlipped = new bool[16];
     private bool[] _isSecondSolFlipped = new bool[16];
+    private string[] _sounds = { "Click1", "Click2", "Click3" };
 
     private int[][] _adjacents = new int[16][]
     {
@@ -104,7 +105,7 @@ public class PuzzlePanelScript : MonoBehaviour
             if (_isFirstSolFlipped[i])
                 _flippedSquares.Add("ABCD".Substring(i % 4, 1) + "1234".Substring(i / 4, 1));
         }
-        Debug.LogFormat("Puzzle Panel #{0}] Stage 1: With {1} flips, squares {2} have been flipped over.", _moduleId, _stageOneCount, _flippedSquares.Join(" "));
+        Debug.LogFormat("[Puzzle Panel #{0}] Stage 1: With {1} flips, squares {2} have been flipped over.", _moduleId, _stageOneCount, _flippedSquares.Join(" "));
         Debug.LogFormat("[Puzzle Panel #{0}] Possible solution path: {1}", _moduleId, _possibleMoves.Join(", "));
     }
 
@@ -132,6 +133,7 @@ public class PuzzlePanelScript : MonoBehaviour
     private IEnumerator FlipSquare(int sq, float dur, bool isGen)
     {
         _isAnimating = true;
+        Audio.PlaySoundAtTransform(_sounds[Rnd.Range(0, _sounds.Length)], transform);
         var duration = dur;
         var elapsed = 0f;
         while (elapsed < duration)
@@ -181,9 +183,10 @@ public class PuzzlePanelScript : MonoBehaviour
         if (_correct)
         {
             Debug.LogFormat("[Puzzle Panel #{0}] Got to the solution in the required amount of moves.", _moduleId);
+            Audio.PlaySoundAtTransform("Correct", transform);
             if (_stageNum == 0)
             {
-                Debug.LogFormat("Puzzle Panel #{0}] Moving onto Stage 2.", _moduleId);
+                Debug.LogFormat("[Puzzle Panel #{0}] Moving onto Stage 2.", _moduleId);
                 DoStageTwo();
             }
             else
@@ -238,6 +241,7 @@ public class PuzzlePanelScript : MonoBehaviour
     private IEnumerator FlipToSolution(int solNum, bool toSolution)
     {
         _isAnimating = true;
+        Audio.PlaySoundAtTransform(_sounds[Rnd.Range(0, _sounds.Length)], transform);
         var duration = 0.4f;
         var elapsed = 0f;
         for (int i = 0; i < 16; i++)
