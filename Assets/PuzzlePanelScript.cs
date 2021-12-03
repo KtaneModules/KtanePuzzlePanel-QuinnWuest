@@ -296,7 +296,8 @@ public class PuzzlePanelScript : MonoBehaviour
 #pragma warning restore 0414
     private IEnumerator ProcessTwitchCommand(string command)
     {
-        var pieces = command.Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+        var cmd = command.ToLowerInvariant();
+        var pieces = cmd.Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
         for (int i = 0; i < pieces.Length; i++)
         {
             if (!CoordNames.Contains(pieces[i].ToLowerInvariant()))

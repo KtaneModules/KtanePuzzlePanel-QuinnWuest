@@ -5954,7 +5954,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ModuleType: PuzzlePanelModule
-  ModuleDisplayName: Puzzle Panels
+  ModuleDisplayName: Puzzle Panel
   RequiresTimerVisibility: 0
 --- !u!114 &114928589395483808
 MonoBehaviour:
