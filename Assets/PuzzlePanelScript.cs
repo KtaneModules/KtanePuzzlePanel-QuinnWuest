@@ -183,7 +183,6 @@ public class PuzzlePanelScript : MonoBehaviour
         if (_correct)
         {
             Debug.LogFormat("[Puzzle Panel #{0}] Got to the solution in the required amount of moves.", _moduleId);
-            Audio.PlaySoundAtTransform("Correct", transform);
             if (_stageNum == 0)
             {
                 Debug.LogFormat("[Puzzle Panel #{0}] Moving onto Stage 2.", _moduleId);
@@ -193,6 +192,7 @@ public class PuzzlePanelScript : MonoBehaviour
             {
                 _moduleSolved = true;
                 Module.HandlePass();
+                Audio.PlaySoundAtTransform("Solve", transform);
                 Debug.LogFormat("[Puzzle Panel #{0}] Module solved.", _moduleId);
                 StageLed.material = StageLedMats[2];
             }
