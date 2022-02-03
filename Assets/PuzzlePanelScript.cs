@@ -8,6 +8,13 @@ using Rnd = UnityEngine.Random;
 
 public class PuzzlePanelScript : MonoBehaviour
 {
+    /// <summary>
+    /// This code is really really bad
+    /// do not read it
+    /// thanks
+    /// - Quinn Wuest
+    /// </summary>
+
     public KMBombModule Module;
     public KMBombInfo BombInfo;
     public KMAudio Audio;
@@ -69,6 +76,7 @@ public class PuzzlePanelScript : MonoBehaviour
     private void Start()
     {
         _moduleId = _moduleIdCounter++;
+        Audio.PlaySoundAtTransform("Startup", transform);
         for (int i = 0; i < SquareSels.Length; i++)
             SquareSels[i].OnInteract += SquarePress(i);
         StageLed.material = StageLedMats[0];
@@ -97,7 +105,7 @@ public class PuzzlePanelScript : MonoBehaviour
 
         for (int i = 0; i < _stageOne.Count; i++)
         {
-            StartCoroutine(FlipSquare(_stageOne[i], 0f, true));
+            StartCoroutine(FlipSquare(_stageOne[i], 0f, true, false));
             _possibleMoves.Add("ABCD".Substring(_stageOne[i] % 4, 1) + "1234".Substring(_stageOne[i] / 4, 1));
         }
         for (int i = 0; i < 16; i++)
@@ -116,12 +124,10 @@ public class PuzzlePanelScript : MonoBehaviour
             if (!_moduleSolved && !_isAnimating)
             {
                 if (!_isInputting)
-                {
                     StartCoroutine(FlipToSolution(_stageNum, false));
-                }
                 else
                 {
-                    StartCoroutine(FlipSquare(sq, 0.4f, false));
+                    StartCoroutine(FlipSquare(sq, 0.4f, false, true));
                     _movesLeft--;
                     ScreenText.text = _movesLeft.ToString();
                 }
@@ -130,10 +136,11 @@ public class PuzzlePanelScript : MonoBehaviour
         };
     }
 
-    private IEnumerator FlipSquare(int sq, float dur, bool isGen)
+    private IEnumerator FlipSquare(int sq, float dur, bool isGen, bool playSound)
     {
         _isAnimating = true;
-        Audio.PlaySoundAtTransform(_sounds[Rnd.Range(0, _sounds.Length)], transform);
+        if (playSound)
+            Audio.PlaySoundAtTransform(_sounds[Rnd.Range(0, _sounds.Length)], transform);
         var duration = dur;
         var elapsed = 0f;
         while (elapsed < duration)
@@ -186,6 +193,7 @@ public class PuzzlePanelScript : MonoBehaviour
             if (_stageNum == 0)
             {
                 Debug.LogFormat("[Puzzle Panel #{0}] Moving onto Stage 2.", _moduleId);
+                Audio.PlaySoundAtTransform("RedCoin", transform);
                 DoStageTwo();
             }
             else
@@ -210,9 +218,7 @@ public class PuzzlePanelScript : MonoBehaviour
     {
         _movesLeft = 99;
         for (int i = 0; i < _stageOne.Count; i++)
-        {
-            StartCoroutine(FlipSquare(_stageOne[i], 0f, true));
-        }
+            StartCoroutine(FlipSquare(_stageOne[i], 0f, true, false));
         _movesLeft = _stageTwoCount;
         ScreenText.text = _movesLeft.ToString();
         _stageNum++;
@@ -224,7 +230,7 @@ public class PuzzlePanelScript : MonoBehaviour
 
         for (int i = 0; i < _stageTwo.Count; i++)
         {
-            StartCoroutine(FlipSquare(_stageTwo[i], 0f, true));
+            StartCoroutine(FlipSquare(_stageTwo[i], 0f, true, false));
             _possibleMoves.Add("ABCD".Substring(_stageTwo[i] % 4, 1) + "1234".Substring(_stageTwo[i] / 4, 1));
         }
         for (int i = 0; i < 16; i++)
