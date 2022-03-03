@@ -307,15 +307,23 @@ public class PuzzlePanelScript : MonoBehaviour
         for (int i = 0; i < pieces.Length; i++)
         {
             if (!CoordNames.Contains(pieces[i].ToLowerInvariant()))
+            {
+                yield return "sendtochaterror " + pieces[i] + " is not a valid coordinate!";
                 yield break;
-            yield return null;
+            }
+        }
+        yield return null;
+        for (int i = 0; i < pieces.Length; i++)
+        {
             if (!_isInputting)
             {
                 SquareSels[0].OnInteract();
                 yield return new WaitForSeconds(0.5f);
             }
             SquareSels[Array.IndexOf(CoordNames, pieces[i])].OnInteract();
-            yield return new WaitForSeconds(0.5f);
+            while (_isAnimating)
+                yield return null;
+            yield return new WaitForSeconds(0.1f);
             if (_correct || _movesLeft == 0)
                 yield break;
         }
