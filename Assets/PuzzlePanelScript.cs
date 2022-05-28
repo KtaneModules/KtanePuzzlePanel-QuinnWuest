@@ -72,6 +72,7 @@ public class PuzzlePanelScript : MonoBehaviour
 
     private List<string> _flippedSquares = new List<string>();
     private List<string> _possibleMoves = new List<string>();
+    private List<string> _input = new List<string>();
 
     private void Start()
     {
@@ -128,6 +129,7 @@ public class PuzzlePanelScript : MonoBehaviour
                 else
                 {
                     StartCoroutine(FlipSquare(sq, 0.4f, false, true));
+                    _input.Add("ABCD".Substring(sq % 4, 1) + "1234".Substring(sq / 4, 1));
                     _movesLeft--;
                     ScreenText.text = _movesLeft.ToString();
                 }
@@ -155,7 +157,6 @@ public class PuzzlePanelScript : MonoBehaviour
             SquareObjs[_adjacents[sq][i]].transform.localEulerAngles = new Vector3(0f, 0f, 0f);
             if (!isGen)
             {
-
                 _isFlippedUp[_adjacents[sq][i]] = !_isFlippedUp[_adjacents[sq][i]];
                 SquareFronts[_adjacents[sq][i]].material = _isFlippedUp[_adjacents[sq][i]] ? SquareMats[1] : SquareMats[0];
                 SquareBacks[_adjacents[sq][i]].material = _isFlippedUp[_adjacents[sq][i]] ? SquareMats[0] : SquareMats[1];
@@ -208,6 +209,7 @@ public class PuzzlePanelScript : MonoBehaviour
         if (_movesLeft <= 0 && !_correct)
         {
             StartCoroutine(FlipToSolution(_stageNum, true));
+            _input = new List<string>();
             _isInputting = false;
         }
         if (_movesLeft != 0)
@@ -222,6 +224,7 @@ public class PuzzlePanelScript : MonoBehaviour
         _movesLeft = _stageTwoCount;
         ScreenText.text = _movesLeft.ToString();
         _stageNum++;
+        _input = new List<string>();
         _isInputting = false;
         StageLed.material = StageLedMats[1];
 
@@ -240,7 +243,6 @@ public class PuzzlePanelScript : MonoBehaviour
         }
         Debug.LogFormat("Puzzle Panel #{0}] Stage 2: With {1} flips, squares {2} have been flipped over.", _moduleId, _stageTwoCount, _flippedSquares.Join(" "));
         Debug.LogFormat("[Puzzle Panel #{0}] Possible solution path: {1}", _moduleId, _possibleMoves.Join(", "));
-
         _isAnimating = false;
     }
 
@@ -293,20 +295,21 @@ public class PuzzlePanelScript : MonoBehaviour
         _movesLeft = solNum == 0 ? _stageOneCount : _stageTwoCount;
         ScreenText.text = _movesLeft.ToString();
         _isInputting = !toSolution;
+        _input = new List<string>();
         _isAnimating = false;
     }
-    private readonly string[] CoordNames = { "a1", "b1", "c1", "d1", "a2", "b2", "c2", "d2", "a3", "b3", "c3", "d3", "a4", "b4", "c4", "d4" };
+    private readonly string[] CoordNames = { "A1", "B1", "C1", "D1", "A2", "B2", "C2", "D2", "A3", "B3", "C3", "D3", "A4", "B4", "C4", "D4" };
 
 #pragma warning disable 0414
     private readonly string TwitchHelpMessage = "Flip over specific tiles with !{0} A1 B2 C3 D4.";
 #pragma warning restore 0414
     private IEnumerator ProcessTwitchCommand(string command)
     {
-        var cmd = command.ToLowerInvariant();
+        var cmd = command.ToUpperInvariant();
         var pieces = cmd.Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
         for (int i = 0; i < pieces.Length; i++)
         {
-            if (!CoordNames.Contains(pieces[i].ToLowerInvariant()))
+            if (!CoordNames.Contains(pieces[i].ToUpperInvariant()))
             {
                 yield return "sendtochaterror " + pieces[i] + " is not a valid coordinate!";
                 yield break;
@@ -318,7 +321,9 @@ public class PuzzlePanelScript : MonoBehaviour
             if (!_isInputting)
             {
                 SquareSels[0].OnInteract();
-                yield return new WaitForSeconds(0.5f);
+                while (_isAnimating)
+                    yield return null;
+                yield return new WaitForSeconds(0.1f);
             }
             SquareSels[Array.IndexOf(CoordNames, pieces[i])].OnInteract();
             while (_isAnimating)
@@ -327,5 +332,42 @@ public class PuzzlePanelScript : MonoBehaviour
             if (_correct || _movesLeft == 0)
                 yield break;
         }
+    }
+
+    private IEnumerator TwitchHandleForcedSolve()
+    {
+        while (!_moduleSolved)
+        {
+            if (!_isInputting)
+            {
+                SquareSels[0].OnInteract();
+                while (_isAnimating)
+                    yield return null;
+                yield return new WaitForSeconds(0.1f);
+            }
+            bool goodSoFar = true;
+            for (int i = 0; i < _input.Count; i++)
+                if (!_possibleMoves.Contains(_input[i]))
+                    goodSoFar = false;
+            if (!goodSoFar)
+            {
+                while (_isInputting)
+                {
+                    SquareSels[0].OnInteract();
+                    while (_isAnimating)
+                        yield return null;
+                    yield return new WaitForSeconds(0.1f);
+                }
+            }
+            for (int i = 0; i < _possibleMoves.Count; i++)
+                if (!_input.Contains(_possibleMoves[i]))
+                {
+                    SquareSels[Array.IndexOf(CoordNames, _possibleMoves[i])].OnInteract();
+                    while (_isAnimating)
+                        yield return null;
+                    yield return new WaitForSeconds(0.1f);
+                }
+        }
+        yield break;
     }
 }
